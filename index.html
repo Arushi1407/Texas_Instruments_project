@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Digital Lockbox Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0f;
+      --surface: #161618;
+      --surface2: #1f1f22;
+      --border: #2a2a2e;
+      --accent: #00e5b0;
+      --accent-glow: rgba(0, 229, 176, 0.35);
+      --red: #ff4a4a;
+      --text: #e8e8ec;
+      --text-muted: #6b6b72;
+      --text-sub: #9999a5;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Navigation */
+    .nav-bar {
+      width: 100%;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      padding: 0 24px;
+    }
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      padding: 16px 20px;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      text-transform: uppercase;
+    }
+    .nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .nav-btn:hover:not(.active) { color: var(--text); }
+
+    /* Tabs */
+    .tab-content { display: none; width: 90%; max-width: 600px; margin-top: 48px; }
+    .tab-content.active { display: block; }
+
+    /* Headers */
+    .header-text { text-align: center; margin-bottom: 32px; }
+    .header-text h1 { font-family: 'JetBrains Mono', monospace; font-size: 1.9rem; color: var(--text); letter-spacing: -0.02em; }
+    .header-text h1 span { color: var(--accent); }
+    .header-text p { color: var(--text-sub); font-size: 0.9rem; margin-top: 8px; line-height: 1.6; }
+
+    /* Dashboard Grid */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; text-align: center; }
+    .stat-card h3 { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 12px; }
+    .stat-val { font-family: 'JetBrains Mono', monospace; font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+
+    /* Tables */
+    .log-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .log-table th { background: var(--surface2); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 16px; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); }
+    .log-table td { padding: 16px; font-size: 0.88rem; color: var(--text); border-bottom: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; }
+    .log-table tr:last-child td { border-bottom: none; }
+    .log-table tr.alert td { color: var(--red); }
+
+    /* Authenticator Styles (Existing) */
+    .auth-header h1 { font-size: 1.1rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); }
+    .otp-wrapper { display: flex; flex-direction: column; align-items: center; gap: 28px; }
+    .ring-container { position: relative; width: 200px; height: 200px; }
+    .ring-svg { transform: rotate(-90deg); width: 200px; height: 200px; }
+    .ring-track { fill: none; stroke: var(--border); stroke-width: 6; }
+    .ring-fill {
+      fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round;
+      stroke-dasharray: 552.9; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear, stroke 0.5s ease;
+      filter: drop-shadow(0 0 6px var(--accent-glow));
+    }
+    .ring-fill.danger { stroke: var(--red); filter: drop-shadow(0 0 6px rgba(255,74,74,0.45)); }
+    .ring-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+    #totp-code { font-family: 'JetBrains Mono', monospace; font-size: 2.4rem; font-weight: 700; letter-spacing: 6px; color: var(--accent); text-shadow: 0 0 20px var(--accent-glow); transition: color 0.5s; }
+    #totp-code.danger { color: var(--red); text-shadow: 0 0 20px rgba(255,74,74,0.45); }
+    #time-left-label { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.06em; }
+    #time-left-label.danger { color: var(--red); }
+    .digits-row { display: flex; gap: 10px; align-items: center; }
+    .digit-group { display: flex; gap: 6px; }
+    .digit-box { width: 44px; height: 56px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 700; color: var(--accent); transition: color 0.3s, border-color 0.3s, box-shadow 0.3s; }
+    .digit-box.danger { color: var(--red); border-color: rgba(255,74,74,0.4); box-shadow: 0 0 10px rgba(255,74,74,0.15); }
+    .digit-sep { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; color: var(--text-muted); }
+    .conn-status { font-size: 0.78rem; color: var(--text-muted); letter-spacing: 0.05em; font-family: 'JetBrains Mono', monospace; margin-top: 8px; }
+    .conn-status.ok { color: var(--accent); }
+    .conn-status.err { color: var(--red); }
+  </style>
+</head>
+<body>
+
+  <div class="nav-bar">
+    <button class="nav-btn active" onclick="switchTab('dashboard', this)">Stats Dashboard</button>
+    <button class="nav-btn" onclick="switchTab('session-log', this)">Session Log</button>
+    <button class="nav-btn" onclick="switchTab('override', this)">Emergency Override</button>
+  </div>
+
+  <div id="dashboard" class="tab-content active">
+    <div class="header-text">
+      <h1>TI <span>Digital Lockbox</span></h1>
+      <p>System metrics and gamification tracking. Simulator processing 1 day every 90 seconds.</p>
+    </div>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Streak (Days)</h3>
+        <div class="stat-val" id="ui-streak">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>Total Points</h3>
+        <div class="stat-val" id="ui-points">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="session-log" class="tab-content">
+    <div class="header-text">
+      <h1>Session <span>History</span></h1>
+      <p>Raw analytics payload recorded from the lockbox hardware.</p>
+    </div>
+    
+    <table class="log-table">
+      <thead>
+        <tr>
+          <th>Day</th>
+          <th>Duration (Mins)</th>
+          <th>Emergency</th>
+          <th>Force Attempts</th>
+        </tr>
+      </thead>
+      <tbody id="log-tbody">
+        </tbody>
+    </table>
+  </div>
+
+  <div id="override" class="tab-content">
+    <div class="header-text auth-header">
+      <h1>Authenticator</h1>
+      <p>Enter this 6-digit code on the physical lockbox keypad to force an emergency unlock.</p>
+    </div>
+    <div class="otp-wrapper">
+      <div class="ring-container">
+        <svg class="ring-svg" viewBox="0 0 200 200">
+          <circle class="ring-track" cx="100" cy="100" r="88"/>
+          <circle id="ring-fill" class="ring-fill" cx="100" cy="100" r="88"/>
+        </svg>
+        <div class="ring-inner">
+          <div id="totp-code">––––––</div>
+          <div id="time-left-label">-- sec</div>
+        </div>
+      </div>
+      <div class="digits-row">
+        <div class="digit-group">
+          <div class="digit-box" id="d0">–</div>
+          <div class="digit-box" id="d1">–</div>
+          <div class="digit-box" id="d2">–</div>
+        </div>
+        <span class="digit-sep">·</span>
+        <div class="digit-group">
+          <div class="digit-box" id="d3">–</div>
+          <div class="digit-box" id="d4">–</div>
+          <div class="digit-box" id="d5">–</div>
+        </div>
+      </div>
+      <div id="conn-status" class="conn-status">Connecting to secure key store…</div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+    }
+  </script>
+
+  <script src="simulator.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCkEhtkyrU5Xo6r_afe6AJOicL1f3tu6jk",
+      authDomain: "digital-lockbox-e293f.firebaseapp.com",
+      databaseURL: "https://digital-lockbox-e293f-default-rtdb.firebaseio.com",
+      projectId: "digital-lockbox-e293f",
+      storageBucket: "digital-lockbox-e293f.firebasestorage.app",
+      messagingSenderId: "175631819441",
+      appId: "1:175631819441:web:f5ef1a65409b9012e0b890"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+
+    function base32Decode(input) {
+      const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+      const clean = input.toUpperCase().replace(/=+$/, '').replace(/\s/g, '');
+      let bits = 0, value = 0;
+      const output = [];
+      for (const char of clean) {
+        const idx = alphabet.indexOf(char);
+        if (idx === -1) throw new Error('Invalid base32 character: ' + char);
+        value = (value << 5) | idx;
+        bits += 5;
+        if (bits >= 8) {
+          output.push((value >>> (bits - 8)) & 0xff);
+          bits -= 8;
+        }
+      }
+      return new Uint8Array(output);
+    }
+
+    async function hmacSha1(keyBytes, msgBytes) {
+      const cryptoKey = await crypto.subtle.importKey(
+        'raw', keyBytes,
+        { name: 'HMAC', hash: 'SHA-1' },
+        false, ['sign']
+      );
+      const sig = await crypto.subtle.sign('HMAC', cryptoKey, msgBytes);
+      return new Uint8Array(sig);
+    }
+
+    function counterToBytes(counter) {
+      const buf = new Uint8Array(8);
+      let c = BigInt(counter);
+      for (let i = 7; i >= 0; i--) {
+        buf[i] = Number(c & 0xffn);
+        c >>= 8n;
+      }
+      return buf;
+    }
+
+    async function generateTOTP(base32Secret, digits = 6, period = 30) {
+      const keyBytes = base32Decode(base32Secret);
+      const counter  = Math.floor(Date.now() / 1000 / period);
+      const hmac     = await hmacSha1(keyBytes, counterToBytes(counter));
+
+      const offset = hmac[hmac.length - 1] & 0x0f;
+      const code   = ((hmac[offset]     & 0x7f) << 24)
+                   | ((hmac[offset + 1] & 0xff) << 16)
+                   | ((hmac[offset + 2] & 0xff) <<  8)
+                   |  (hmac[offset + 3] & 0xff);
+
+      return String(code % Math.pow(10, digits)).padStart(digits, '0');
+    }
+
+    function timeRemaining(period = 30) {
+      return period - (Math.floor(Date.now() / 1000) % period);
+    }
+
+    const codeEl    = document.getElementById('totp-code');
+    const timeLabel = document.getElementById('time-left-label');
+    const ringFill  = document.getElementById('ring-fill');
+    const connEl    = document.getElementById('conn-status');
+    const digits    = Array.from({length: 6}, (_, i) => document.getElementById('d' + i));
+    const CIRC      = 2 * Math.PI * 88;
+
+    function applyDanger(isDanger) {
+      [codeEl, timeLabel].forEach(el => el.classList.toggle('danger', isDanger));
+      ringFill.classList.toggle('danger', isDanger);
+      digits.forEach(d => d.classList.toggle('danger', isDanger));
+    }
+
+    function updateUI(token, left) {
+      const isDanger = left <= 5;
+      ringFill.style.strokeDashoffset = CIRC * (1 - left / 30);
+      codeEl.textContent = token;
+      timeLabel.textContent = left + ' sec';
+      token.split('').forEach((ch, i) => { digits[i].textContent = ch; });
+      applyDanger(isDanger);
+    }
+
+    async function fetchKeyAndStart() {
+      try {
+        const snapshot = await get(ref(db, 'totp_secret'));
+        if (!snapshot.exists()) {
+          connEl.textContent = "Error: 'totp_secret' not found in database.";
+          connEl.className = 'conn-status err';
+          return;
+        }
+
+        const secret = snapshot.val();
+        connEl.textContent = "● Secure connection established";
+        connEl.className = 'conn-status ok';
+
+        const tick = async () => {
+          const token = await generateTOTP(secret);
+          const left  = timeRemaining();
+          updateUI(token, left);
+        };
+
+        await tick();                   
+        setInterval(tick, 1000);       
+
+      } catch (err) {
+        console.error(err);
+        codeEl.textContent = 'ERROR';
+        connEl.textContent = "Could not reach Firebase. Check your connection.";
+        connEl.className = 'conn-status err';
+      }
+    }
+
+    fetchKeyAndStart();
+  </script>
+</body>
+</html>
