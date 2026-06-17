@@ -11,6 +11,7 @@ const focusStreak = document.getElementById('focusStreak');
 const dailyStreak = document.getElementById('dailyStreak');
 const coins = document.getElementById('coins');
 const hoursFocused = document.getElementById('hoursFocused');
+const currentTaskInput = document.getElementById('currentTask');
 const timerDisplay = document.getElementById('timerDisplay');
 const overlay = document.getElementById('overlay');
 let timerId = null;
@@ -29,8 +30,39 @@ function renderDashboard() {
   dailyStreak.textContent = state.dailyStreak;
   coins.textContent = state.coins;
   hoursFocused.textContent = state.hoursFocused;
+  if (currentTaskInput) currentTaskInput.value = state.currentTask;
   document.getElementById('overlayTask').textContent = state.currentTask;
   document.getElementById('overlayCoins').textContent = `+${Math.max(10, Math.round(state.pet.progress * 12))}`;
+}
+
+async function refreshDashboardData() {
+  try {
+    const response = await fetch('/api/points-summary');
+    if (!response.ok) throw new Error('Failed to load summary');
+    const summary = await response.json();
+    focusStreak.textContent = summary.streak;
+    dailyStreak.textContent = summary.bestStreak;
+    coins.textContent = summary.totalPoints;
+    hoursFocused.textContent = summary.daysProcessed;
+  } catch (error) {
+    console.warn('Could not refresh dashboard data:', error);
+  }
+}
+
+async function logSessionRecord(sessionData) {
+  try {
+    const response = await fetch('/api/log-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sessionData)
+    });
+    if (!response.ok) {
+      throw new Error('Failed to log session');
+    }
+    await refreshDashboardData();
+  } catch (error) {
+    console.warn('Session logging failed:', error);
+  }
 }
 
 function openOverlay() {
@@ -74,6 +106,17 @@ function completeSession() {
   }
   saveState(state);
   renderDashboard();
+
+  const sessionRecord = {
+    day: new Date().toISOString().slice(0, 10),
+    start_time: new Date().toISOString().slice(11, 16),
+    end_time: new Date(Date.now() + 25 * 60 * 1000).toISOString().slice(11, 16),
+    duration_mins: 25,
+    emergency_unlock: false,
+    force_attempts: 0
+  };
+
+  logSessionRecord(sessionRecord);
   alert('Session complete! Your pet is growing and your streak is stronger.');
 }
 
@@ -91,4 +134,13 @@ window.closeOverlay = closeOverlay;
 window.completeSession = completeSession;
 window.renamePet = renamePet;
 
+if (currentTaskInput) {
+  currentTaskInput.addEventListener('input', (event) => {
+    state.currentTask = event.target.value;
+    saveState(state);
+    renderDashboard();
+  });
+}
+
 renderDashboard();
+refreshDashboardData();

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Focus Buddy Lockbox | Session Log</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="nav-bar">
+    <a class="nav-link" href="home.html">Home</a>
+    <a class="nav-link" href="dashboard.html">Dashboard</a>
+    <a class="nav-link active" href="log.html">Session Log</a>
+    <a class="nav-link" href="override.html">Override</a>
+  </div>
+
+  <main class="app-shell">
+    <section class="page-card">
+      <div class="header-text auth-header">
+        <h1>Session History</h1>
+        <p>Review focus sessions, emergency unlocks, and how your lockbox progress is tracking over time.</p>
+      </div>
+      <div class="log-summary-grid">
+        <div class="summary-card">
+          <div class="summary-label">Current streak</div>
+          <div class="summary-value" id="summaryStreak">—</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Best streak</div>
+          <div class="summary-value" id="summaryBestStreak">—</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Total points</div>
+          <div class="summary-value" id="summaryPoints">—</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Sessions recorded</div>
+          <div class="summary-value" id="summaryDays">—</div>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table class="data-table" id="sessionLogTable">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Duration</th>
+              <th>Emergency</th>
+              <th>Force attempts</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="6">Loading session history…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="common.js"></script>
+  <script src="log.js"></script>
+</body>
+</html>

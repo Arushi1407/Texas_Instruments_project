@@ -76,6 +76,28 @@ app.get('/api/points-summary', (req, res) => {
   }
 });
 
+app.post('/api/log-session', (req, res) => {
+  const newSession = req.body;
+  if (!newSession || typeof newSession.duration_mins !== 'number') {
+    return res.status(400).json({ error: 'Invalid session payload' });
+  }
+
+  try {
+    const sessions = fs.existsSync(DATA_FILE)
+      ? JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'))
+      : [];
+
+    newSession.day = newSession.day || sessions.length + 1;
+    sessions.push(newSession);
+    fs.writeFileSync(DATA_FILE, JSON.stringify(sessions, null, 2), 'utf-8');
+
+    res.status(201).json({ success: true, session: newSession });
+  } catch (error) {
+    console.error('Failed to log session:', error);
+    res.status(500).json({ error: 'Failed to persist session data' });
+  }
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
 });
