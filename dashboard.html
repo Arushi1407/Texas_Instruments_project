@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Focus Buddy Lockbox | Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="nav-bar">
+    <a class="nav-link" href="home.html">Home</a>
+    <a class="nav-link active" href="dashboard.html">Dashboard</a>
+    <a class="nav-link" href="override.html">Override</a>
+  </div>
+
+  <main class="app-shell">
+    <div class="dashboard-grid">
+      <div class="status-panel">
+        <div class="profile-info">
+          <div class="panel-label">Welcome back</div>
+          <div class="profile-name" id="displayName">Focus Star</div>
+          <div class="badge" id="roleLabel">Student</div>
+        </div>
+        <div class="avatar" id="displayAvatar">F</div>
+      </div>
+      <div class="info-panel">
+        <div class="panel-label">Today’s focus</div>
+        <input id="currentTask" type="text" class="button-secondary" />
+        <div class="chips" id="taskChips"></div>
+      </div>
+      <div class="pet-panel">
+        <div class="pet-status" id="petStageLabel">Egg · Stage 1</div>
+        <div class="pet-display">
+          <div class="pet-figure"><img id="petImage" src="assets/pet-common.png" alt="Pet companion" /></div>
+          <div class="pet-name" id="petName">Aura</div>
+          <button class="pet-action" onclick="renamePet()">Rename pet</button>
+        </div>
+        <div class="progress-wrapper">
+          <div class="progress-bar"><div class="progress-fill" id="petProgress"></div></div>
+          <p class="progress-meta" id="petProgressText">Finish a session to help Aura grow.</p>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label-small">Focus streak</div><div class="stat-number" id="focusStreak">3</div></div>
+        <div class="stat-card"><div class="stat-label-small">Daily streak</div><div class="stat-number" id="dailyStreak">2</div></div>
+        <div class="stat-card"><div class="stat-label-small">Coins earned</div><div class="stat-number" id="coins">18</div></div>
+        <div class="stat-card"><div class="stat-label-small">Hours focused</div><div class="stat-number" id="hoursFocused">7</div></div>
+      </div>
+      <div class="action-panel">
+        <button class="focus-button" onclick="openOverlay()">Start focus session</button>
+        <a class="override-button override-action" href="override.html">Emergency override</a>
+      </div>
+    </div>
+  </main>
+
+  <div id="overlay" class="overlay hidden">
+    <div class="overlay-panel">
+      <h2>Focus session in progress</h2>
+      <div class="timer-display" id="timerDisplay">25:00</div>
+      <div class="overlay-meta">
+        <div>Task: <strong id="overlayTask">Reading</strong></div>
+        <div>Reward: <strong id="overlayCoins">+10</strong></div>
+      </div>
+      <div class="overlay-actions">
+        <button class="dismiss button-secondary" onclick="closeOverlay()">Cancel</button>
+        <button class="confirm button-primary" onclick="completeSession()">Finish now</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

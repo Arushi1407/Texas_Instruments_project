@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Focus Buddy Lockbox | Home</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="nav-bar">
+    <a class="nav-link active" href="home.html">Home</a>
+    <a class="nav-link" href="dashboard.html">Dashboard</a>
+    <a class="nav-link" href="override.html">Override</a>
+  </div>
+
+  <main class="app-shell">
+    <section class="page-card">
+      <div class="hero-grid">
+        <div class="hero-copy-group">
+          <h1 class="hero-title">Focus Buddy <span>Lockbox</span></h1>
+          <p class="hero-copy">A glossy, playful focus dashboard inspired by the reference app. Track sessions, grow your pet companion, and collect reward coins in a premium-looking UI.</p>
+          <div class="hero-pill-bar">
+            <span class="pill">Daily streaks</span>
+            <span class="pill">Pet progress</span>
+            <span class="pill">Session timer</span>
+            <span class="pill">Reward coins</span>
+          </div>
+        </div>
+        <div class="hero-panel">
+          <h3>Today’s focus snapshot</h3>
+          <div class="hero-stats">
+            <div class="hero-stat"><strong>3</strong><span>Focus streak</span></div>
+            <div class="hero-stat"><strong>18</strong><span>Pet coins</span></div>
+            <div class="hero-stat"><strong>7.0h</strong><span>Time focused</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-grid" id="slideList"></div>
+      <div class="form-card">
+        <div class="form-switch">
+          <button id="signupToggle" class="active" onclick="setMode('signup')">Sign up</button>
+          <button id="loginToggle" onclick="setMode('login')">Log in</button>
+        </div>
+        <form class="form-panel" onsubmit="submitForm(event)">
+          <div class="input-group">
+            <label>Email<input id="email" type="email" placeholder="you@school.edu" required /></label>
+            <label>Password<input id="password" type="password" placeholder="••••••••" required /></label>
+          </div>
+          <div id="signupFields" class="row-2">
+            <label>Name<input id="name" type="text" placeholder="Alex Rivera" /></label>
+            <label>Age<input id="age" type="number" min="10" max="99" placeholder="18" /></label>
+          </div>
+          <div class="submit-row">
+            <button type="submit" class="button-primary" id="submitButton">Start focusing</button>
+            <button type="button" class="button-secondary" onclick="resetOnboarding()">Reset</button>
+          </div>
+          <p class="hint">Profile details are stored locally for demo use only.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="common.js"></script>
+  <script src="home.js"></script>
+</body>
+</html>

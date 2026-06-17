@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Focus Buddy Lockbox | Override</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="nav-bar">
+    <a class="nav-link" href="home.html">Home</a>
+    <a class="nav-link" href="dashboard.html">Dashboard</a>
+    <a class="nav-link active" href="override.html">Override</a>
+  </div>
+
+  <main class="app-shell">
+    <section class="page-card">
+      <div class="header-text auth-header">
+        <h1>Authenticator</h1>
+        <p>Enter this 6-digit code on the physical lockbox keypad to force an emergency unlock.</p>
+      </div>
+      <div class="otp-wrapper">
+        <div class="ring-container">
+          <svg class="ring-svg" viewBox="0 0 200 200">
+            <circle class="ring-track" cx="100" cy="100" r="88"/>
+            <circle id="ring-fill" class="ring-fill" cx="100" cy="100" r="88"/>
+          </svg>
+          <div class="ring-inner">
+            <div id="totp-code">––––––</div>
+            <div id="time-left-label">-- sec</div>
+          </div>
+        </div>
+        <div class="digits-row">
+          <div class="digit-group"><div class="digit-box" id="d0">–</div><div class="digit-box" id="d1">–</div><div class="digit-box" id="d2">–</div></div>
+          <span class="digit-sep">·</span>
+          <div class="digit-group"><div class="digit-box" id="d3">–</div><div class="digit-box" id="d4">–</div><div class="digit-box" id="d5">–</div></div>
+        </div>
+        <div id="conn-status" class="conn-status">Connecting to secure key store…</div>
+      </div>
+      <div class="form-card">
+        <p id="overrideText">Loading override status...</p>
+        <button id="overrideBtn" type="button" class="button-primary">Show Emergency Code</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="common.js"></script>
+  <script src="override.js"></script>
+</body>
+</html>
